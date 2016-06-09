@@ -1,0 +1,16 @@
+TTYDM
+=====
+
+A simple "display manager" that runs on boot instead of getty in one of
+your vtty's
+
+
+CONFIGURATION
+=============
+
+all relevant files are in /etc/ttydm/
+ - bg.bmp : drawn in the background, should be equal to the dimensions of your
+   monitor
+ - [username]*.bmp : the presence of a 150x150px image signifies that "username"
+   has a profile in ttydm. This image is also drawn above the password field.
+ - [username]*/init.sh : this shell script is run when the user logs in
