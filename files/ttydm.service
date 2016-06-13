@@ -1,0 +1,12 @@
+[Unit]
+Description=ttydm
+
+[Service]
+ExecStart=/usr/local/bin/ttydm.start.sh
+Type=simple
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty10
+
+[Install]
+After=multi-user.target

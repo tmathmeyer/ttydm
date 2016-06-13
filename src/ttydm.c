@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include "fb.h"
 #include "keyboard.h"
@@ -26,6 +28,10 @@ void clear_rect(void) {
 }
 
 int main(int argc, char **argv) {
+    usleep(1000000);
+
+    printf("sleeping done!");
+    
     fb_init();
     disable_echo();
 
@@ -39,6 +45,8 @@ int main(int argc, char **argv) {
     
     pthread_t keyboard = keythread_start(&kb_handler);
     pthread_join(keyboard, NULL);
+
+
 }
 
 int kb_handler(char key) {
@@ -52,25 +60,35 @@ int kb_handler(char key) {
     circle_gr.g = 0xaa;
     circle_gr.b = 0xaa;
 
+    char *prof = user_has_prof();
+    if (prof) {
+        draw_bitmap(prof, (width()-150)/2, 250, 1);
+    }
+
     if (key == 27) { // escape
         enable_echo();
-        return -1;
+        //return -1;
     } else if (key == '\t') {
         char *old = username();
         char *new_path = next_user();
-        if (strcmp(old, username())) {
-            draw_bitmap(new_path, (width()-150)/2, 250, 1);
-        }
+        draw_bitmap(new_path, (width()-150)/2, 250, 1);
     } else if (key == 127) { // backspace 
         charpos--;
-        pword[charpos] = 0;
-        draw_circle(circle_gr, (width()-W+H)/2+(charpos*H), height()/2, (H-1)/2);
         if (charpos == -1) {
             charpos = 0;
         }
+        pword[charpos] = 0;
+        draw_circle(circle_gr, (width()-W+H)/2+(charpos*H), height()/2, (H-1)/2);
     } else if (key == 10) { // enter
         if (check_pw(pword)) {
-            printf("user: %s is logged in!\n", username());
+            enable_echo();
+            char *const argv[2] = {"bash", NULL};
+            if (setuid(getuid())) {
+                perror("ERROR, COULD NOT LOGIN");
+                exit(1);
+            }
+            execv("/bin/bash", argv);
+            return -1;
         }
     } else if (charpos < W/H) {
         draw_circle(circle, (width()-W+H)/2+(charpos*H), height()/2, (H-1)/2);

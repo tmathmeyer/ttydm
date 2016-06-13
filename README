@@ -14,3 +14,12 @@ all relevant files are in /etc/ttydm/
  - [username]*.bmp : the presence of a 150x150px image signifies that "username"
    has a profile in ttydm. This image is also drawn above the password field.
  - [username]*/init.sh : this shell script is run when the user logs in
+
+INSTALLATION
+============
+
+run ```make``` as your normal user, then run ```make install``` as root. The
+binaries and init scripts for 'user' will be added to ```/usr/local/bin/``` and
+```/etc/ttydm/``` respectively. You will need to move the
+```/etc/ttydm/user*``` to ```/etc/ttydm/[your username]```. You should also
+enable ttydm.service with systemd.

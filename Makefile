@@ -23,3 +23,8 @@ build/obj/%.o: src/%.c
 clean:
 	@rm -r build
 
+install: all
+	@./files/copy_etc.sh
+	@cp -n ./files/ttydm.service /etc/systemd/system/ttydm.service
+	@cp -n ./files/ttydm.start.sh /usr/local/bin/
+	@cp ./build/ttydm /usr/local/bin/

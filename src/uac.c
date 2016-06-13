@@ -48,6 +48,13 @@ char *user_has_prof() {
     return NULL;
 }
 
+uid_t getuid() {
+    if (!passwd) {
+        exit(1); // this cant ever happen anyway
+    }
+    return passwd->pw_uid;
+}
+
 char *username() {
     if (passwd != NULL) {
         return passwd->pw_name;
