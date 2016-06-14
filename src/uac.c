@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <grp.h>
 
 #include "uac.h"
 
@@ -48,16 +49,39 @@ char *user_has_prof() {
     return NULL;
 }
 
-uid_t getuid() {
+uid_t get_login_uid() {
     if (!passwd) {
         exit(1); // this cant ever happen anyway
     }
     return passwd->pw_uid;
 }
 
+gid_t get_login_gid() {
+    if (!passwd) {
+        exit(1); // this cant ever happen anyway
+    }
+    return passwd->pw_gid;
+}
+
 char *username() {
     if (passwd != NULL) {
         return passwd->pw_name;
+    }
+}
+
+char *user_shell() {
+    if (passwd != NULL) {
+        if (passwd->pw_shell) {
+            return passwd->pw_shell;
+        } else {
+            return "/bin/bash";
+        }
+    }
+}
+
+char *home_dir() {
+    if (passwd != NULL) {
+        return passwd->pw_dir;
     }
 }
 
@@ -86,4 +110,42 @@ bool check_pw(char *inpass) {
         }
     }
     return false;
+}
+
+void set_groups() {
+    if (passwd == NULL) {
+        exit(1);
+    }
+
+    ssize_t gid_ct = 8;
+    ssize_t gid_rl = 0;
+    gid_t *gids = calloc(sizeof(gid_t), gid_ct);
+
+    char *uname = username();
+    size_t ulen = strlen(uname);
+    struct group *grp;
+    while(grp = getgrent()) {
+        char **members = grp->gr_mem;
+        while(*members) {
+            size_t tlen = strlen(*members);
+            if ((tlen==ulen && strncmp(*members, uname, tlen)==0) || strncmp("input", grp->gr_name, 6)) {
+                gids[gid_rl] = grp->gr_gid;
+                gid_rl++;
+                if (gid_rl == gid_ct) {
+                    gid_ct*=2;
+                    gids = realloc(gids, sizeof(gid_t)*gid_ct);
+                }
+            }
+            members++;
+        }
+    }
+
+    if (setgroups(gid_rl, gids)) {
+        perror("ERROR: could not set groups");
+        exit(1);
+    }
+
+    free(gids);
+
+    endgrent();
 }

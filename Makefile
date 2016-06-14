@@ -1,6 +1,5 @@
-
-CFLAGS := -pedantic -pthread -lcrypt
-LDFLAGS := -pthread -lcrypt
+LDFLAGS := -pthread -lcrypt -lpam
+CFLAGS := -pedantic -pthread -lcrypt -lpam
 OPTS := -DDEBUG
 
 source_files := $(wildcard src/*.c)
