@@ -128,7 +128,7 @@ void set_groups() {
         char **members = grp->gr_mem;
         while(*members) {
             size_t tlen = strlen(*members);
-            if ((tlen==ulen && strncmp(*members, uname, tlen)==0) || strncmp("input", grp->gr_name, 6)) {
+            if (tlen==ulen && strncmp(*members, uname, tlen)==0) {
                 gids[gid_rl] = grp->gr_gid;
                 gid_rl++;
                 if (gid_rl == gid_ct) {
